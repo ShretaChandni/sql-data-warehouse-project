@@ -88,24 +88,23 @@ Select
 sls_ord_num,
 sls_prd_key,
 sls_cust_id,
-CASE WHEN sls_order_date = 0 or len(sls_order_date) != 8 then null
-	else cast(cast(sls_order_date as varchar) as date)
+CASE WHEN sls_order_date = 0 or len(sls_order_date) != 8 then null -- Handling missing/invalid data
+	else cast(cast(sls_order_date as varchar) as date) --- Handling date format
 end as sls_order_date,
-CASE WHEN sls_ship_date = 0 or len(sls_ship_date) != 8 then null
-	else cast(cast(sls_ship_date as varchar) as date)
+CASE WHEN sls_ship_date = 0 or len(sls_ship_date) != 8 then null -- Handling missing/invalid data
+	else cast(cast(sls_ship_date as varchar) as date) --- Handling date format
 end as sls_ship_date,
-CASE WHEN sls_due_date = 0 or len(sls_due_date) != 8 then null
-	else cast(cast(sls_due_date as varchar) as date)
+CASE WHEN sls_due_date = 0 or len(sls_due_date) != 8 then null -- Handling missing/invalid data
+	else cast(cast(sls_due_date as varchar) as date) --- Handling date format
 end as sls_due_date,
 CASE WHEN sls_sales is null or sls_sales <=0 or sls_sales != sls_quantity * ABS(sls_price)
-		then sls_quantity * ABS(sls_price)
+		then sls_quantity * ABS(sls_price) --- Data enrichment by deriving information (business rules)
 	else sls_sales
 end as sls_sales,
 sls_quantity,
-case when sls_price is null or sls_price <= 0
+case when sls_price is null or sls_price <= 0 -- Handling missing/invalid data
 		then sls_sales / nullif(sls_quantity, 0)
-	else sls_price
+	else sls_price                            --- Data enrichment by deriving information (business rules)
 end as sls_price
 from bronze.crm_sales_details
-
 
