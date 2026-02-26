@@ -33,7 +33,9 @@ ROW_NUMBER() OVER (PARTITION BY TRIM(CAST(cst_id AS VARCHAR)) ORDER BY cst_creat
 FROM bronze.crm_cust_info
 WHERE cst_id IS NOT NULL)t WHERE flag_last = 1 -- Select the most recent record per customer
 
-	============================================================================================
+/*===================================================================
+  Loading crm_prd_info after transformation in the silver schema
+===================================================================*/
 TRUNCATE TABLE silver.crm_prd_info;
 INSERT INTO silver.crm_prd_info (
 prd_id,
