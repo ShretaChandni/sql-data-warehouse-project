@@ -65,8 +65,47 @@ CAST(prd_start_date AS DATE) AS prd_start_date,
 CAST(
 	LEAD(prd_start_date) OVER (PARTITION BY prd_key ORDER BY prd_start_date)-1 
 	As DATE) 
-	AS prd_end_date --- Calculate end date as one day before the next start date (Data enrichmemt)
+	AS prd_end_date --- Calculate end date as one day before the next start date (Data enrichment)
 from bronze.crm_prd_info
 
+/*===================================================================
+  Loading crm_sales_details after transformation in the Silver schema
+===================================================================*/
+TRUNCATE TABLE silver.crm_prd_info;
+INSERT INTO silver.crm_sales_details (
+sls_ord_num,
+sls_prd_key,
+sls_cust_id,
+sls_order_date,
+sls_ship_date,
+sls_due_date,
+sls_sales,
+sls_quantity,
+sls_price
+)
+
+Select 
+sls_ord_num,
+sls_prd_key,
+sls_cust_id,
+CASE WHEN sls_order_date = 0 or len(sls_order_date) != 8 then null
+	else cast(cast(sls_order_date as varchar) as date)
+end as sls_order_date,
+CASE WHEN sls_ship_date = 0 or len(sls_ship_date) != 8 then null
+	else cast(cast(sls_ship_date as varchar) as date)
+end as sls_ship_date,
+CASE WHEN sls_due_date = 0 or len(sls_due_date) != 8 then null
+	else cast(cast(sls_due_date as varchar) as date)
+end as sls_due_date,
+CASE WHEN sls_sales is null or sls_sales <=0 or sls_sales != sls_quantity * ABS(sls_price)
+		then sls_quantity * ABS(sls_price)
+	else sls_sales
+end as sls_sales,
+sls_quantity,
+case when sls_price is null or sls_price <= 0
+		then sls_sales / nullif(sls_quantity, 0)
+	else sls_price
+end as sls_price
+from bronze.crm_sales_details
 
 
