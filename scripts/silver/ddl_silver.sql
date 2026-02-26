@@ -36,6 +36,7 @@ CREATE TABLE silver.crm_sales_details (
 	sls_prd_key NVARCHAR(50),
 	sls_cust_id INT,
 	sls_order_date INT,
+	sls_ship_date INT,
 	sls_due_date INT,
 	sls_sales INT,
 	sls_quantity INT,
